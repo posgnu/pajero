@@ -1,0 +1,7 @@
+[package]
+name = "pajero"
+version = "0.1.0"
+authors = ["Geunwoo Kim <posgnu@gmail.com>"]
+
+[dependencies]
+rocksdb = { git = "https://github.com/paritytech/rust-rocksdb.git" }
