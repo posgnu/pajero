@@ -5,3 +5,7 @@ authors = ["Geunwoo Kim <posgnu@gmail.com>"]
 
 [dependencies]
 rocksdb = { git = "https://github.com/paritytech/rust-rocksdb.git" }
+clap = "2.32"
+
+[dependencies.pnet]
+version = "0.21.0"
