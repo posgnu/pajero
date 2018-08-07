@@ -4,7 +4,12 @@
 // more verbose, but allows easier editing, and at times more advanced options, or the possibility
 // to generate arguments dynamically.
 extern crate clap;
+#[macro_use]
+extern crate serde_derive;
+
 use clap::{Arg, App, SubCommand};
+
+mod object;
 
 fn main() {
     let matches = App::new("pajero")

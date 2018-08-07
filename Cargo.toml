@@ -6,6 +6,9 @@ authors = ["Geunwoo Kim <posgnu@gmail.com>"]
 [dependencies]
 rocksdb = { git = "https://github.com/paritytech/rust-rocksdb.git" }
 clap = "2.32"
+bincode = "1.0.1"
+serde_derive = "1.0.71"
+serde = "1.0.71"
 
 [dependencies.pnet]
 version = "0.21.0"
