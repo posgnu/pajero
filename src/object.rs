@@ -1,34 +1,30 @@
-extern crate rocksdb;
-extern crate bincode;
+use bincode::{deserialize, serialize};
+use rocksdb::{Writable, WriteBatch, DB};
 
-
-use self::rocksdb::{DB, WriteBatch, Writable};
-use self::bincode::{serialize, deserialize};
-
-#[derive(Serialize, Deserialize, PartialEq, Debug)]
+#[derive(Serialize, Deserialize, PartialEq, Debug, Clone)]
 pub struct Team {
-    name: String,
+    pub name: String,
 }
 
 #[derive(Serialize, Deserialize, PartialEq, Debug)]
 pub struct Service {
-    title: String,
-    description: String,
+    pub title: String,
+    pub description: String,
 }
 
 #[derive(Serialize, Deserialize, PartialEq, Debug)]
 pub struct ServiceVariant {
-    service: Service,
-    description: String,
-    published_by: Team,
-    version: String,
+    pub service: Service,
+    pub port: u8,
+    pub published_by: Team,
+    pub version: String,
 }
 
 #[derive(Serialize, Deserialize, PartialEq, Debug)]
 pub struct ServiceProvider {
     team: Team,
     connection: String,
-    service_variants: [ServiceVariant;32],
+    service_variants: Vec<ServiceVariant>,
 }
 
 #[derive(PartialEq)]
@@ -45,11 +41,15 @@ pub struct ExploitResponse {
 }
 
 impl ServiceProvider {
-    pub fn new(team: Team, connection: String, service_variants: [ServiceVariant;32]) -> Result<Self, String> {
+    pub fn new(
+        team: Team,
+        connection: String,
+        service_variants: Vec<ServiceVariant>,
+    ) -> Result<Self, String> {
         Ok(ServiceProvider {
             team,
             connection,
-            service_variants
+            service_variants,
         })
     }
 
