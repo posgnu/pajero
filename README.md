@@ -20,4 +20,4 @@ To run `rustfmt`
 cargo +nightly-2018-07-17 fmt
 ```
 ## License
-This project is licensed under GNU GPLv3 - see the LICENSE.txt for details
+This project is licensed under GNU GPLv3 - see the `LICENSE.txt` for details
