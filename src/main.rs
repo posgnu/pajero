@@ -36,7 +36,7 @@ fn main() {
 
     match matches.subcommand() {
         ("set", Some(sub_input)) => {
-            SetTeamInfo();
+            SetTeamInfo()?;
         }
         ("play", Some(sub_input)) => {
             let path = sub_input.value_of("PCAP").unwrap();
