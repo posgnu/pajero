@@ -27,5 +27,6 @@ pub fn SetTeamInfo() -> Result<(), String> {
 
     service_provider1.insert();
 
+    println!("Setting the initial teams information is complete");
     Ok(())
 }
