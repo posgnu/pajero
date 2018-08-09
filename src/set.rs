@@ -30,5 +30,6 @@ pub fn set_team_info() -> Result<(), String> {
     // End
 
     println!("Setting the initial teams information is complete");
+  
     Ok(())
 }

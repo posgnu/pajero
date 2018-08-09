@@ -249,8 +249,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 dependencies = [
  "libc 0.2.42 (registry+https://github.com/rust-lang/crates.io-index)",
 ]
-
-[[package]]
 name = "pnet"
 version = "0.21.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
