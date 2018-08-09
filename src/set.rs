@@ -1,11 +1,12 @@
 use object::*;
 use rocksdb::{rocksdb_options::Options, DB};
-use std::collections::HashMap;
+//use std::collections::HashMap;
 
-pub fn SetTeamInfo() -> Result<(), String> {
+pub fn set_team_info() -> Result<(), String> {
     let opts = Options::new();
-    let result = DB::destroy(&opts, "./db");
+    DB::destroy(&opts, "./db")?;
 
+    // Set a team's information per team
     let team1 = Team {
         name: "team1".to_string(),
     };
@@ -25,7 +26,8 @@ pub fn SetTeamInfo() -> Result<(), String> {
 
     let service_provider1 = ServiceProvider::new(team1.clone(), "0.0.0.0".to_string(), services)?;
 
-    service_provider1.insert();
+    service_provider1.insert()?;
+    // End
 
     println!("Setting the initial teams information is complete");
     Ok(())
