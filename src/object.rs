@@ -1,5 +1,5 @@
 use bincode::{deserialize, serialize};
-use rocksdb::{Writable, WriteBatch, DB};
+use rocksdb::{Writable, DB};
 
 #[derive(Serialize, Deserialize, PartialEq, Debug, Clone)]
 pub struct Team {
@@ -57,7 +57,7 @@ impl ServiceProvider {
         let db = DB::open_default("./db").unwrap();
         let encoded: Vec<u8> = serialize(self).unwrap();
 
-        db.put(self.team.name.as_bytes(), encoded.as_slice());
+        db.put(self.team.name.as_bytes(), encoded.as_slice())?;
 
         Ok(())
     }

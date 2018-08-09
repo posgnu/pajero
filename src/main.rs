@@ -3,12 +3,15 @@ extern crate clap;
 extern crate serde_derive;
 extern crate bincode;
 extern crate rocksdb;
+extern crate pnet;
 
 use clap::{App, Arg, SubCommand};
-use set::SetTeamInfo;
+use set::set_team_info;
+use analyze::analyze;
 
 mod object;
 mod set;
+mod analyze;
 
 fn main() {
     let matches = App::new("pajero")
@@ -35,12 +38,16 @@ fn main() {
         .get_matches();
 
     match matches.subcommand() {
-        ("set", Some(sub_input)) => {
-            SetTeamInfo();
+        ("set", Some(_sub_input)) => {
+            match set_team_info() {
+                Ok(()) => println!("Success setting!"),
+                Err(s) => println!("Something happen wrong!: {}", s),
+            }
         }
         ("play", Some(sub_input)) => {
-            let path = sub_input.value_of("PCAP").unwrap();
-            println!("{}", path);
+            let path: String = sub_input.value_of("PCAP").unwrap().to_string();
+            
+            analyze(path);
         }
         _ => println!("Awesome packet replayer, 1.0, GNu. <posgnu@gmail.com>"),
     }
