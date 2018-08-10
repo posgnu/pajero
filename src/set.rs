@@ -16,7 +16,7 @@ pub fn set_team_info() -> Result<(), String> {
     };
     let service_variant1_1 = ServiceVariant {
         service: service1_1,
-        port: 80,
+        port: "80".to_string(),
         published_by: team1.clone(),
         version: "0x12213123".to_string(),
     };
