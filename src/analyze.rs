@@ -25,16 +25,6 @@ fn handle_tcp_packet(source: IpAddr, destination: IpAddr, packet: &[u8]) {
             .open(path)
             .unwrap();
         writeln!(file, "{:?}", tcp.payload());
-
-        println!(
-            "TCP Packet: {}:{} > {}:{}; length: {} : {:?}",
-            source,
-            tcp.get_source(),
-            destination,
-            tcp.get_destination(),
-            packet.len(),
-            tcp.payload(),
-        );
     } else {
         println!("[]: Malformed TCP Packet");
     }
