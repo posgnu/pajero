@@ -15,16 +15,16 @@ pub struct Service {
 #[derive(Serialize, Deserialize, PartialEq, Debug)]
 pub struct ServiceVariant {
     pub service: Service,
-    pub port: u8,
+    pub port: String,
     pub published_by: Team,
     pub version: String,
 }
 
 #[derive(Serialize, Deserialize, PartialEq, Debug)]
 pub struct ServiceProvider {
-    team: Team,
-    connection: String,
-    service_variants: Vec<ServiceVariant>,
+    pub team: Team,
+    pub connection: String,
+    pub service_variants: Vec<ServiceVariant>,
 }
 
 #[derive(PartialEq)]
@@ -62,11 +62,17 @@ impl ServiceProvider {
         Ok(())
     }
 
-    pub fn get(&self) -> Result<(), String> {
+    pub fn get(&mut self) -> Result<(), String> {
         let db = DB::open_default("./db").unwrap();
 
         match db.get(self.team.name.as_bytes()) {
-            Ok(Some(value)) => println!("retrieved value {}", value.to_utf8().unwrap()),
+            Ok(Some(value)) => {
+                println!("retrieved value {}", value.to_utf8().unwrap());
+                let decoded: ServiceProvider = deserialize(&value).unwrap();
+
+                self.connection = decoded.connection;
+                self.service_variants = decoded.service_variants;
+            }
             Ok(None) => println!("value not found"),
             Err(e) => println!("operational problem encountered: {}", e),
         }
