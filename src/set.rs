@@ -8,23 +8,23 @@ pub fn set_team_info() -> Result<(), String> {
 
     // Set a team's information per team
     let team1 = Team {
-        name: "team1".to_string(),
+        name: "0daysober".to_string(),
     };
     let service1_1 = Service {
-        title: "pwn".to_string(),
+        title: "pointless".to_string(),
         description: "Too hard".to_string(),
     };
     let service_variant1_1 = ServiceVariant {
         service: service1_1,
-        port: "80".to_string(),
+        port: "4242".to_string(),
         published_by: team1.clone(),
-        version: "0x12213123".to_string(),
+        version: "0x111111".to_string(),
     };
 
     let mut services = Vec::new();
     services.push(service_variant1_1);
 
-    let service_provider1 = ServiceProvider::new(team1.clone(), "0.0.0.0".to_string(), services)?;
+    let service_provider1 = ServiceProvider::new(team1.clone(), "10.13.37.01".to_string(), services)?;
 
     service_provider1.insert()?;
     // End

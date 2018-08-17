@@ -6,7 +6,7 @@ pub struct Team {
     pub name: String,
 }
 
-#[derive(Serialize, Deserialize, PartialEq, Debug)]
+#[derive(Serialize, Deserialize, PartialEq, Debug, Clone)]
 pub struct Service {
     pub title: String,
     pub description: String,
