@@ -11,6 +11,12 @@ use std::io::prelude::*;
 use std::net::IpAddr;
 use std::path::Path;
 
+fn find_subsequence<T>(haystack: &[T], needle: &[T]) -> Option<usize>
+where for<'a> &'a [T]: PartialEq 
+{
+    haystack.windows(needle.len()).position(|window| window == needle)
+}
+
 fn handle_tcp_packet(source: IpAddr, destination: IpAddr, packet: &[u8]) {
     let tcp = TcpPacket::new(packet);
     if let Some(tcp) = tcp {
@@ -24,6 +30,9 @@ fn handle_tcp_packet(source: IpAddr, destination: IpAddr, packet: &[u8]) {
             .create(true)
             .open(path)
             .unwrap();
+        if find_subsequence(tcp.payload(), "ooo".as_bytes()).is_some() {
+            println!("Exploited by {:?}", destination);
+        }
         writeln!(file, "{:?}", tcp.payload());
     } else {
         println!("[]: Malformed TCP Packet");
@@ -38,18 +47,9 @@ fn handle_transport_protocol(
 ) {
     match protocol {
         IpNextHeaderProtocols::Tcp => handle_tcp_packet(source, destination, packet),
-        _ => println!(
-            "Unknown {} packet: {} > {}; protocol: {:?} length: {}",
-            match source {
-                IpAddr::V4(..) => "IPv4",
-                _ => "IPv6",
-            },
-            source,
-            destination,
-            protocol,
-            packet.len()
-        ),
-    }
+        _ => {}
+        }
+    
 }
 
 fn handle_ipv4_packet(ethernet: &EthernetPacket) {
