@@ -10,6 +10,19 @@ Build in release mode
 cargo build --release
 ```
 This will produce an executable in the `./target/release` directory.
+## How to use
+```
+$./pajero set
+```
+Set the information about teams which are participating the CTF
+```
+$./pajero analyze
+```
+Analyze packet as pre-defined filter
+```
+$./pajero play
+```
+Replay packet to another team's service
 ## Formatting
 ```
 rustup toolchain install nightly-2018-07-17
