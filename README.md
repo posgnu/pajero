@@ -1,2 +1,2 @@
 # pajero
-Packets replayer for attack &amp; defence CTF
+Packet analyzing and replaying framwork for attack &amp; defence CTF
