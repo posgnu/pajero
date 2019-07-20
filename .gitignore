@@ -1,4 +1,5 @@
-/target
+server/target/
+server/static/packets
 **/*.rs.bk
 /packet
 /db
