@@ -1,0 +1,43 @@
+{
+    "team": [{
+        "name": "PLUS",
+        "ip": "0.0.0.0",
+        "service": [{
+            "name": "bof",
+            "port": 8888
+        }, {
+            "name": "uaf",
+            "port": 7777
+        }]
+    }, {
+        "name": "PLUS1",
+        "ip": "0.0.0.1",
+        "service": [{
+            "name": "bof",
+            "port": 8888
+        }, {
+            "name": "uaf",
+            "port": 7777
+        }]
+    }, {
+        "name": "PLUS2",
+        "ip": "0.0.0.2",
+        "service": [{
+            "name": "bof",
+            "port": 8888
+        }, {
+            "name": "uaf",
+            "port": 7777
+        }]
+    }],
+    "service": [{
+            "name": "bof",
+            "flag": "DEFCON{"
+        },
+        {
+            "name": "uaf",
+            "flag": "DEFCON{"
+        }
+
+    ]
+}
