@@ -4,13 +4,17 @@ extern crate serde_derive;
 extern crate bincode;
 extern crate pnet;
 extern crate rocksdb;
+extern crate serde;
+extern crate serde_json;
 
 use analyze::analyze;
 use clap::{App, Arg, SubCommand};
+use conf::Config;
 use play::play;
 use set::set_team_info;
 
 mod analyze;
+mod conf;
 mod object;
 mod play;
 mod set;

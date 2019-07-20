@@ -24,7 +24,8 @@ pub fn set_team_info() -> Result<(), String> {
     let mut services = Vec::new();
     services.push(service_variant1_1);
 
-    let service_provider1 = ServiceProvider::new(team1.clone(), "10.13.37.01".to_string(), services)?;
+    let service_provider1 =
+        ServiceProvider::new(team1.clone(), "10.13.37.01".to_string(), services)?;
 
     service_provider1.insert()?;
     // End

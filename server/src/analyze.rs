@@ -12,9 +12,12 @@ use std::net::IpAddr;
 use std::path::Path;
 
 fn find_subsequence<T>(haystack: &[T], needle: &[T]) -> Option<usize>
-where for<'a> &'a [T]: PartialEq 
+where
+    for<'a> &'a [T]: PartialEq,
 {
-    haystack.windows(needle.len()).position(|window| window == needle)
+    haystack
+        .windows(needle.len())
+        .position(|window| window == needle)
 }
 
 fn handle_tcp_packet(source: IpAddr, destination: IpAddr, packet: &[u8]) {
@@ -48,8 +51,7 @@ fn handle_transport_protocol(
     match protocol {
         IpNextHeaderProtocols::Tcp => handle_tcp_packet(source, destination, packet),
         _ => {}
-        }
-    
+    }
 }
 
 fn handle_ipv4_packet(ethernet: &EthernetPacket) {
