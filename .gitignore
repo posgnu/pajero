@@ -1,5 +1,6 @@
 server/target/
 server/static/packets
+server/static/conf.json
 **/*.rs.bk
 /packet
 /db
