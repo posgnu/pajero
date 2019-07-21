@@ -1,7 +1,7 @@
+use std;
 use std::env;
 use std::fs;
 use std::fs::File;
-use std;
 use std::io::prelude::*;
 
 use serde::{Deserialize, Serialize};
@@ -54,22 +54,28 @@ impl Config {
 
     pub fn get_team_list() -> Result<Vec<String>> {
         let list = Self::get_teams()?;
-        Ok(list.iter().map(|team| team.name.clone()).collect::<Vec<String>>())
+        Ok(list
+            .iter()
+            .map(|team| team.name.clone())
+            .collect::<Vec<String>>())
     }
 
     pub fn get_service_list() -> Result<Vec<String>> {
         let list = Self::get_services()?;
-        Ok(list.iter().map(|team| team.name.clone()).collect::<Vec<String>>())
+        Ok(list
+            .iter()
+            .map(|team| team.name.clone())
+            .collect::<Vec<String>>())
     }
 
     pub fn team_name_to_ip(name: &str) -> std::result::Result<String, &str> {
         let list = match Self::get_teams() {
             Ok(list) => list,
-            Err(_) => return Err("JSON parsing error")
+            Err(_) => return Err("JSON parsing error"),
         };
         for team in list.iter() {
             if name == &team.name {
-                return Ok(team.ip.clone())
+                return Ok(team.ip.clone());
             }
         }
         Err("Not found")
@@ -78,11 +84,11 @@ impl Config {
     pub fn team_ip_to_name(ip: &str) -> std::result::Result<String, &str> {
         let list = match Self::get_teams() {
             Ok(list) => list,
-            Err(_) => return Err("JSON parsing error")
+            Err(_) => return Err("JSON parsing error"),
         };
         for team in list.iter() {
-            if ip ==  &team.ip {
-                return Ok(team.name.clone())
+            if ip == &team.ip {
+                return Ok(team.name.clone());
             }
         }
         Err("Not found")
@@ -91,11 +97,11 @@ impl Config {
     pub fn service_name_to_flag(name: &str) -> std::result::Result<String, &str> {
         let list = match Self::get_services() {
             Ok(list) => list,
-            Err(_) => return Err("JSON parsing error")
+            Err(_) => return Err("JSON parsing error"),
         };
         for service in list.iter() {
             if name == &service.name {
-                return Ok(service.flag.clone())
+                return Ok(service.flag.clone());
             }
         }
         Err("Not found")
@@ -104,17 +110,15 @@ impl Config {
     pub fn service_name_to_port(name: &str) -> std::result::Result<u32, &str> {
         let list = match Self::get_services() {
             Ok(list) => list,
-            Err(_) => return Err("JSON parsing error")
+            Err(_) => return Err("JSON parsing error"),
         };
         for service in list.iter() {
             if name == &service.name {
-                return Ok(service.port.clone())
+                return Ok(service.port.clone());
             }
         }
         Err("Not found")
     }
-
-
 }
 
 #[cfg(test)]
@@ -176,7 +180,7 @@ mod tests {
         let team_list = Config::get_team_list().unwrap();
         assert_eq!(vec!["PLUS", "PLUS1", "PLUS2"], team_list)
     }
-    
+
     #[test]
     fn test_get_service_list() {
         let service_list = Config::get_service_list().unwrap();
@@ -186,16 +190,15 @@ mod tests {
     #[test]
     fn test_team_name_to_ip() {
         assert_eq!(Config::team_name_to_ip("PLUS").unwrap(), "0.0.0.0");
-assert_eq!(Config::team_name_to_ip("PLUS1").unwrap(), "0.0.0.1");
-assert_eq!(Config::team_name_to_ip("PLUS2").unwrap(), "0.0.0.2");
+        assert_eq!(Config::team_name_to_ip("PLUS1").unwrap(), "0.0.0.1");
+        assert_eq!(Config::team_name_to_ip("PLUS2").unwrap(), "0.0.0.2");
     }
 
     #[test]
     fn test_team_ip_to_name() {
         assert_eq!(Config::team_ip_to_name("0.0.0.0").unwrap(), "PLUS");
         assert_eq!(Config::team_ip_to_name("0.0.0.1").unwrap(), "PLUS1");
-                assert_eq!(Config::team_ip_to_name("0.0.0.2").unwrap(), "PLUS2");
-
+        assert_eq!(Config::team_ip_to_name("0.0.0.2").unwrap(), "PLUS2");
     }
 
     #[test]
@@ -209,7 +212,7 @@ assert_eq!(Config::team_name_to_ip("PLUS2").unwrap(), "0.0.0.2");
         assert_eq!(Config::service_name_to_port("uaf").unwrap(), 7777);
     }
 
-        #[test]
+    #[test]
     fn test_write_conf() {
         let config: Config = Config::read_conf(DEFAULT_PATH).unwrap();
         Config::write_conf(DEFAULT_PATH, config).unwrap();

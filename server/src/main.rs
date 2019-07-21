@@ -7,8 +7,8 @@ extern crate bincode;
 extern crate pnet;
 extern crate serde;
 extern crate serde_json;
-#[macro_use] extern crate rocket;
-
+#[macro_use]
+extern crate rocket;
 
 use analyze::analyze;
 use clap::{App, Arg, SubCommand};
@@ -50,7 +50,10 @@ fn main() {
                 ),
         )
         .subcommand(
-            SubCommand::with_name("serve").about("Run API provider").version("1.0").author("GNu. <posgnu@gmail.com>"),
+            SubCommand::with_name("serve")
+                .about("Run API provider")
+                .version("1.0")
+                .author("GNu. <posgnu@gmail.com>"),
         )
         .get_matches();
 
@@ -64,9 +67,7 @@ fn main() {
 
             analyze(path);
         }
-        ("serve" ,Some(_sub_input)) => {
-            serve()
-        }
+        ("serve", Some(_sub_input)) => serve(),
         _ => println!("Awesome packet replayer, 1.0, GNu. <posgnu@gmail.com>"),
     }
     return;
