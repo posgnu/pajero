@@ -1,3 +1,5 @@
+#![feature(proc_macro_hygiene, decl_macro)]
+
 extern crate clap;
 #[macro_use]
 extern crate serde_derive;
@@ -6,18 +8,27 @@ extern crate pnet;
 extern crate rocksdb;
 extern crate serde;
 extern crate serde_json;
+#[macro_use] extern crate rocket;
+
 
 use analyze::analyze;
 use clap::{App, Arg, SubCommand};
 use conf::Config;
 use play::play;
 use set::set_team_info;
+use serve::serve;
 
 mod analyze;
 mod conf;
 mod object;
 mod play;
 mod set;
+mod serve;
+
+#[get("/")]
+fn index() -> &'static str {
+    "Hello, world!"
+}
 
 fn main() {
     let matches = App::new("pajero")
@@ -47,6 +58,9 @@ fn main() {
                         .required(true),
                 ),
         )
+        .subcommand(
+            SubCommand::with_name("serve").about("Run API provider").version("1.0").author("GNu. <posgnu@gmail.com>"),
+        )
         .get_matches();
 
     match matches.subcommand() {
@@ -63,8 +77,10 @@ fn main() {
 
             analyze(path);
         }
+        ("serve" ,Some(_sub_input)) => {
+            serve()
+        }
         _ => println!("Awesome packet replayer, 1.0, GNu. <posgnu@gmail.com>"),
     }
-
     return;
 }

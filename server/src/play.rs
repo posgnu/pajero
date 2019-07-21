@@ -1,5 +1,5 @@
 use bincode::deserialize;
-use object::*;
+use crate::object::*;
 use rocksdb::{IteratorMode, DB};
 
 use std::fs::File;

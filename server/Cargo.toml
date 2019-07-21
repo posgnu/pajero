@@ -2,6 +2,8 @@
 name = "pajero"
 version = "0.1.0"
 authors = ["Geunwoo Kim <posgnu@gmail.com>"]
+edition = "2018"
+
 
 [dependencies]
 rocksdb = { git = "https://github.com/paritytech/rust-rocksdb.git" }
@@ -10,6 +12,7 @@ bincode = "1.0.1"
 serde_derive = "1.0.71"
 serde = "1.0.71"
 serde_json = "1.0"
+rocket = "0.4.2"
 
 [dependencies.pnet]
 version = "0.21.0"
