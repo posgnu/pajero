@@ -5,7 +5,6 @@ extern crate clap;
 extern crate serde_derive;
 extern crate bincode;
 extern crate pnet;
-extern crate rocksdb;
 extern crate serde;
 extern crate serde_json;
 #[macro_use] extern crate rocket;
@@ -15,14 +14,12 @@ use analyze::analyze;
 use clap::{App, Arg, SubCommand};
 use conf::Config;
 use play::play;
-use set::set_team_info;
 use serve::serve;
 
 mod analyze;
 mod conf;
 mod object;
 mod play;
-mod set;
 mod serve;
 
 #[get("/")]
@@ -35,12 +32,6 @@ fn main() {
         .version("1.0")
         .author("GNu. <posgnu@gmail.com>")
         .about("Awesome packet replayer")
-        .subcommand(
-            SubCommand::with_name("set")
-                .about("Set the DB")
-                .version("1.0")
-                .author("GNu. <posgnu@gmail.com>"),
-        )
         .subcommand(
             SubCommand::with_name("play")
                 .about("Replay packet")
@@ -64,10 +55,6 @@ fn main() {
         .get_matches();
 
     match matches.subcommand() {
-        ("set", Some(_sub_input)) => match set_team_info() {
-            Ok(()) => println!("Success setting!"),
-            Err(s) => println!("Something happen wrong!: {}", s),
-        },
         ("play", Some(_sub_input)) => match play() {
             Ok(()) => println!("Success playing!"),
             Err(_) => println!("Fail playing!"),
