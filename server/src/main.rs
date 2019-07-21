@@ -44,7 +44,7 @@ fn main() {
                 .version("1.0")
                 .author("GNu. <posgnu@gmail.com>")
                 .arg(
-                    Arg::with_name("PCAP")
+                    Arg::with_name("*.pcap")
                         .help("Path where the pcap file is located")
                         .required(true),
                 ),
@@ -63,7 +63,7 @@ fn main() {
             Err(_) => println!("Fail playing!"),
         },
         ("analyze", Some(sub_input)) => {
-            let path: String = sub_input.value_of("PCAP").unwrap().to_string();
+            let path: String = sub_input.value_of("*.pcap").unwrap().to_string();
 
             analyze(path);
         }
