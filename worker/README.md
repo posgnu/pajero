@@ -37,6 +37,14 @@ $./pajero play
 
 Replay packet to another team's service
 
+## Testing
+
+```
+cargo test -- --test-threads=1
+```
+
+Basically, we need to run all the tests synchronously before resolving [#16](https://github.com/GNUp/pajero/issues/26)
+
 ## Formatting
 
 ```
