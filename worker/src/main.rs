@@ -10,16 +10,11 @@ extern crate serde_json;
 #[macro_use]
 extern crate rocket;
 
-use analyze::analyze;
 use clap::{App, Arg, SubCommand};
 use conf::Config;
-use play::play;
 use serve::serve;
 
-mod analyze;
 mod conf;
-mod object;
-mod play;
 mod serve;
 
 #[get("/")]
@@ -58,14 +53,9 @@ fn main() {
         .get_matches();
 
     match matches.subcommand() {
-        ("play", Some(_sub_input)) => match play() {
-            Ok(()) => println!("Success playing!"),
-            Err(_) => println!("Fail playing!"),
-        },
+        ("play", Some(_sub_input)) => {}
         ("analyze", Some(sub_input)) => {
             let path: String = sub_input.value_of("*.pcap").unwrap().to_string();
-
-            analyze(path);
         }
         ("serve", Some(_sub_input)) => serve(),
         _ => println!("Awesome packet replayer, 1.0, GNu. <posgnu@gmail.com>"),

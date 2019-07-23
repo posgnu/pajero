@@ -1,5 +1,4 @@
 use bincode::{deserialize, serialize};
-use rocksdb::{Writable, DB};
 
 #[derive(Serialize, Deserialize, PartialEq, Debug, Clone)]
 pub struct Team {

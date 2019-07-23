@@ -29,13 +29,13 @@ pub struct Config {
 }
 
 impl Config {
-    pub fn read_conf(path: &str) -> Result<Config> {
+    fn read_conf(path: &str) -> Result<Config> {
         let contents = fs::read_to_string(path).expect("Something went wrong reading the file");
         let conf: Config = serde_json::from_str(&contents)?;
         Ok(conf)
     }
 
-    pub fn write_conf(path: &str, conf: Config) -> std::io::Result<()> {
+    fn write_conf(path: &str, conf: Config) -> std::io::Result<()> {
         let contents = serde_json::to_string(&conf)?;
         let mut file = File::create(path)?;
         file.write_all(contents.as_bytes())?;
@@ -68,56 +68,171 @@ impl Config {
             .collect::<Vec<String>>())
     }
 
-    pub fn team_name_to_ip(name: &str) -> std::result::Result<String, &str> {
+    pub fn team_name_to_ip(name: String) -> std::result::Result<String, &'static str> {
         let list = match Self::get_teams() {
             Ok(list) => list,
             Err(_) => return Err("JSON parsing error"),
         };
         for team in list.iter() {
-            if name == &team.name {
+            if name == (&team).name {
                 return Ok(team.ip.clone());
             }
         }
         Err("Not found")
     }
 
-    pub fn team_ip_to_name(ip: &str) -> std::result::Result<String, &str> {
+    pub fn team_ip_to_name(ip: String) -> std::result::Result<String, &'static str> {
         let list = match Self::get_teams() {
             Ok(list) => list,
             Err(_) => return Err("JSON parsing error"),
         };
         for team in list.iter() {
-            if ip == &team.ip {
+            if ip == (&team).ip {
                 return Ok(team.name.clone());
             }
         }
         Err("Not found")
     }
 
-    pub fn service_name_to_flag(name: &str) -> std::result::Result<String, &str> {
+    pub fn service_name_to_flag(name: String) -> std::result::Result<String, &'static str> {
         let list = match Self::get_services() {
             Ok(list) => list,
             Err(_) => return Err("JSON parsing error"),
         };
         for service in list.iter() {
-            if name == &service.name {
+            if name == (&service).name {
                 return Ok(service.flag.clone());
             }
         }
         Err("Not found")
     }
 
-    pub fn service_name_to_port(name: &str) -> std::result::Result<u32, &str> {
+    pub fn service_name_to_port(name: String) -> std::result::Result<u32, &'static str> {
         let list = match Self::get_services() {
             Ok(list) => list,
             Err(_) => return Err("JSON parsing error"),
         };
         for service in list.iter() {
-            if name == &service.name {
+            if name == (&service).name {
                 return Ok(service.port.clone());
             }
         }
         Err("Not found")
+    }
+
+    pub fn add_team(name: String, ip: String) -> std::result::Result<(), &'static str> {
+        let new_team: Team = Team {
+            name: name.clone(),
+            ip: ip.clone(),
+        };
+        let mut conf: Config = match Self::read_conf(DEFAULT_PATH) {
+            Ok(conf) => conf,
+            Err(_) => return Err("JSON parsing error"),
+        };
+        if let Some(_index) = conf.teams.iter().position(|x| x.name == name) {
+            match Self::update_team(name, ip) {
+                Ok(()) => {}
+                Err(_) => return Err("JSON error"),
+            };
+            return Ok(());
+        }
+        conf.teams.push(new_team);
+        match Self::write_conf(DEFAULT_PATH, conf) {
+            Ok(()) => {}
+            Err(_) => return Err("JSON error"),
+        }
+
+        Ok(())
+    }
+
+    pub fn remove_team(name: String) -> std::result::Result<(), &'static str> {
+        let mut conf: Config = match Self::read_conf(DEFAULT_PATH) {
+            Ok(conf) => conf,
+            Err(_) => return Err("JSON parsing error"),
+        };
+        conf.teams.retain(|x| x.name != name);
+        match Self::write_conf(DEFAULT_PATH, conf) {
+            Ok(()) => {}
+            Err(_) => return Err("JSON error"),
+        }
+        Ok(())
+    }
+
+    pub fn update_team(name: String, ip: String) -> std::result::Result<(), &'static str> {
+        let mut conf: Config = match Self::read_conf(DEFAULT_PATH) {
+            Ok(conf) => conf,
+            Err(_) => return Err("JSON parsing error"),
+        };
+        if let Some(index) = conf.teams.iter().position(|x| x.name == name) {
+            conf.teams[index] = Team { name, ip };
+        }
+        match Self::write_conf(DEFAULT_PATH, conf) {
+            Ok(()) => {}
+            Err(_) => return Err("JSON error"),
+        }
+        Ok(())
+    }
+
+    pub fn add_service(
+        name: String,
+        flag: String,
+        port: u32,
+    ) -> std::result::Result<(), &'static str> {
+        let new_service: Service = Service {
+            name: name.clone(),
+            flag: flag.clone(),
+            port: port,
+        };
+        let mut conf: Config = match Self::read_conf(DEFAULT_PATH) {
+            Ok(conf) => conf,
+            Err(_) => return Err("JSON parsing error"),
+        };
+        if let Some(_index) = conf.teams.iter().position(|x| x.name == name) {
+            match Self::update_service(name, flag, port) {
+                Ok(()) => {}
+                Err(_) => return Err("JSON error"),
+            };
+            return Ok(());
+        }
+        conf.services.push(new_service);
+        match Self::write_conf(DEFAULT_PATH, conf) {
+            Ok(()) => {}
+            Err(_) => return Err("JSON error"),
+        }
+
+        Ok(())
+    }
+
+    pub fn remove_service(name: String) -> std::result::Result<(), &'static str> {
+        let mut conf: Config = match Self::read_conf(DEFAULT_PATH) {
+            Ok(conf) => conf,
+            Err(_) => return Err("JSON parsing error"),
+        };
+        conf.services.retain(|x| x.name != name);
+        match Self::write_conf(DEFAULT_PATH, conf) {
+            Ok(()) => {}
+            Err(_) => return Err("JSON error"),
+        }
+        Ok(())
+    }
+
+    pub fn update_service(
+        name: String,
+        flag: String,
+        port: u32,
+    ) -> std::result::Result<(), &'static str> {
+        let mut conf: Config = match Self::read_conf(DEFAULT_PATH) {
+            Ok(conf) => conf,
+            Err(_) => return Err("JSON parsing error"),
+        };
+        if let Some(index) = conf.services.iter().position(|x| x.name == name) {
+            conf.services[index] = Service { name, flag, port };
+        }
+        match Self::write_conf(DEFAULT_PATH, conf) {
+            Ok(()) => {}
+            Err(_) => return Err("JSON error"),
+        }
+        Ok(())
     }
 }
 
@@ -189,32 +304,105 @@ mod tests {
 
     #[test]
     fn test_team_name_to_ip() {
-        assert_eq!(Config::team_name_to_ip("PLUS").unwrap(), "0.0.0.0");
-        assert_eq!(Config::team_name_to_ip("PLUS1").unwrap(), "0.0.0.1");
-        assert_eq!(Config::team_name_to_ip("PLUS2").unwrap(), "0.0.0.2");
+        assert_eq!(
+            Config::team_name_to_ip("PLUS".to_string()),
+            Ok("0.0.0.0".to_string())
+        );
+        assert_eq!(
+            Config::team_name_to_ip("PLUS1".to_string()),
+            Ok("0.0.0.1".to_string())
+        );
+        assert_eq!(
+            Config::team_name_to_ip("PLUS2".to_string()),
+            Ok("0.0.0.2".to_string())
+        );
     }
 
     #[test]
     fn test_team_ip_to_name() {
-        assert_eq!(Config::team_ip_to_name("0.0.0.0").unwrap(), "PLUS");
-        assert_eq!(Config::team_ip_to_name("0.0.0.1").unwrap(), "PLUS1");
-        assert_eq!(Config::team_ip_to_name("0.0.0.2").unwrap(), "PLUS2");
+        assert_eq!(
+            Config::team_ip_to_name("0.0.0.0".to_string()),
+            Ok("PLUS".to_string())
+        );
+        assert_eq!(
+            Config::team_ip_to_name("0.0.0.1".to_string()),
+            Ok("PLUS1".to_string())
+        );
+        assert_eq!(
+            Config::team_ip_to_name("0.0.0.2".to_string()),
+            Ok("PLUS2".to_string())
+        );
     }
 
     #[test]
     fn test_service_name_to_flag() {
-        assert_eq!(Config::service_name_to_flag("bof").unwrap(), "DEFCON{");
+        assert_eq!(
+            Config::service_name_to_flag("bof".to_string()),
+            Ok("DEFCON{".to_string())
+        );
     }
 
     #[test]
     fn test_service_name_to_port() {
-        assert_eq!(Config::service_name_to_port("bof").unwrap(), 8888);
-        assert_eq!(Config::service_name_to_port("uaf").unwrap(), 7777);
+        assert_eq!(Config::service_name_to_port("bof".to_string()), Ok(8888));
+        assert_eq!(Config::service_name_to_port("uaf".to_string()), Ok(7777));
     }
 
     #[test]
     fn test_write_conf() {
         let config: Config = Config::read_conf(DEFAULT_PATH).unwrap();
         Config::write_conf(DEFAULT_PATH, config).unwrap();
+    }
+
+    #[test]
+    fn test_add_remove_update_team() {
+        assert_eq!(
+            Config::add_team("EXAMPLE".to_string(), "1.1.1.1".to_string()),
+            Ok(())
+        );
+        assert_eq!(
+            Config::team_name_to_ip("EXAMPLE".to_string()),
+            Ok("1.1.1.1".to_string())
+        );
+        assert_eq!(
+            Config::update_team("EXAMPLE".to_string(), "2.2.2.2".to_string()),
+            Ok(())
+        );
+        assert_eq!(
+            Config::team_name_to_ip("EXAMPLE".to_string()),
+            Ok("2.2.2.2".to_string())
+        );
+        assert_eq!(Config::remove_team("EXAMPLE".to_string()), Ok(()));
+        assert_eq!(
+            Config::team_name_to_ip("EXAMPLE".to_string()),
+            Err("Not found")
+        );
+    }
+
+    #[test]
+    fn test_add_remove_update_service() {
+        assert_eq!(
+            Config::add_service("EXAMPLE".to_string(), "FLAG".to_string(), 0),
+            Ok(())
+        );
+        assert_eq!(
+            Config::service_name_to_flag("EXAMPLE".to_string()),
+            Ok("FLAG".to_string())
+        );
+        assert_eq!(Config::service_name_to_port("EXAMPLE".to_string()), Ok(0));
+        assert_eq!(
+            Config::update_service("EXAMPLE".to_string(), "GALF".to_string(), 1),
+            Ok(())
+        );
+        assert_eq!(
+            Config::service_name_to_flag("EXAMPLE".to_string()),
+            Ok("GALF".to_string())
+        );
+        assert_eq!(Config::service_name_to_port("EXAMPLE".to_string()), Ok(1));
+        assert_eq!(Config::remove_service("EXAMPLE".to_string()), Ok(()));
+        assert_eq!(
+            Config::service_name_to_flag("EXAMPLE".to_string()),
+            Err("Not found")
+        );
     }
 }
