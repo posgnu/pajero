@@ -16,6 +16,7 @@ use serve::serve;
 
 mod conf;
 mod serve;
+mod splitter;
 
 #[get("/")]
 fn index() -> &'static str {
