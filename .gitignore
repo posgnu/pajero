@@ -2,5 +2,3 @@ worker/target/
 worker/static/packets
 worker/static/conf.json
 **/*.rs.bk
-/packet
-/db
