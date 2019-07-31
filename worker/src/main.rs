@@ -13,6 +13,7 @@ extern crate rocket;
 use clap::{App, Arg, SubCommand};
 use conf::Config;
 use serve::serve;
+use splitter::split_pcap;
 
 mod conf;
 mod serve;
@@ -57,6 +58,7 @@ fn main() {
         ("play", Some(_sub_input)) => {}
         ("analyze", Some(sub_input)) => {
             let path: String = sub_input.value_of("*.pcap").unwrap().to_string();
+            split_pcap(path);
         }
         ("serve", Some(_sub_input)) => serve(),
         _ => println!("Awesome packet replayer, 1.0, GNu. <posgnu@gmail.com>"),
