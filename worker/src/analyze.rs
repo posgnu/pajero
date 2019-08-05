@@ -6,10 +6,12 @@ use pnet::packet::ipv4::Ipv4Packet;
 use pnet::packet::tcp::TcpPacket;
 use pnet::packet::Packet;
 
-use std::fs::{self, OpenOptions};
+use std::fs::{self, read_dir, OpenOptions};
 use std::io::prelude::*;
 use std::net::IpAddr;
 use std::path::Path;
+
+const ROOT_DIR: &str = "./static/packets";
 
 fn find_subsequence<T>(haystack: &[T], needle: &[T]) -> Option<usize>
 where
@@ -23,11 +25,10 @@ where
 fn handle_tcp_packet(source: IpAddr, destination: IpAddr, packet: &[u8]) {
     let tcp = TcpPacket::new(packet);
     if let Some(tcp) = tcp {
-        let port = tcp.get_destination();
-        let path = Path::new("./packet")
-            .join(port.to_string())
-            .join(source.to_string());
-        fs::create_dir_all(path.parent().unwrap());
+        let des_port = tcp.get_destination();
+        let sou_port = tcp.get_source();
+        let path = Path::new(ROOT_DIR);
+        
         let mut file = OpenOptions::new()
             .append(true)
             .create(true)
@@ -75,21 +76,30 @@ fn handle_ethernet_frame(ethernet: &EthernetPacket) {
     }
 }
 
-pub fn analyze(path: String) {
-    let path = Path::new(&path);
-    // Create a channel to receive on
-    let (_, mut rx) = match pcap::from_file(path, Default::default()) {
-        Ok(Ethernet(tx, rx)) => (tx, rx),
-        Ok(_) => panic!("packetdump: unhandled channel type: {}"),
-        Err(e) => panic!("packetdump: unable to create channel: {}", e),
-    };
+pub fn analyze(tmp_path: String) {
+    // Read splitted packet files from the tmp directory
+    let paths = fs::read_dir(tmp_path).unwrap();
 
-    loop {
-        match rx.next() {
-            Ok(packet) => handle_ethernet_frame(&EthernetPacket::new(packet).unwrap()),
-            Err(_e) => {
-                println!("Complete to read pcap");
-                break;
+    // Loop all the splitted packet files
+    for path in paths {
+        let file_path = path.unwrap().path();
+        println!("Name: {}", file_path.display());
+        
+        
+        // Create a channel to receive on
+        let (_, mut rx) = match pcap::from_file(file_path, Default::default()) {
+            Ok(Ethernet(tx, rx)) => (tx, rx),
+            Ok(_) => panic!("packetdump: unhandled channel type: {}"),
+            Err(e) => panic!("packetdump: unable to create channel: {}", e),
+        };
+
+        loop {
+            match rx.next() {
+                Ok(packet) => handle_ethernet_frame(&EthernetPacket::new(packet).unwrap()),
+                Err(_e) => {
+                    println!("Complete to read pcap");
+                    break;
+                }
             }
         }
     }

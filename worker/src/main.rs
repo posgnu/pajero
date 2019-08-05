@@ -15,6 +15,7 @@ use conf::Config;
 use serve::serve;
 use splitter::split_pcap;
 
+mod analyze;
 mod conf;
 mod serve;
 mod splitter;

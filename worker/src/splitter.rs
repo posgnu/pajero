@@ -1,3 +1,4 @@
+use crate::analyze::analyze;
 use std::io;
 use std::path::Path;
 use std::process::Command;
@@ -6,7 +7,7 @@ use tempdir::TempDir;
 const DEFAULT_BIN_PATH: &str = "./static/bin/PcapSplitter";
 
 pub fn split_pcap(path: String) -> Result<(), io::Error> {
-    let pcap_path = path;   
+    let pcap_path = path;
     // Create a directory inside of `std::env::temp_dir()`, named with the prefix "tmp_packets".
     let output_dir = TempDir::new("connections")?;
     let tmp_dir_path = match output_dir.path().to_str() {
@@ -25,9 +26,8 @@ pub fn split_pcap(path: String) -> Result<(), io::Error> {
         .output()
         .expect("failed to execute process");
 
-    // FIXME - analyze each connection and store it separately
-    // analyze(tmp_dir_path)
-
+    // Analyze each connection and store it separately
+    analyze(tmp_dir_path.to_string());
 
     // By closing the `TempDir` explicitly, we can check that it has
     // been deleted successfully. If we don't close it explicitly,
