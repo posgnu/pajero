@@ -10,6 +10,7 @@ use std::fs::{self, read_dir, OpenOptions};
 use std::io::prelude::*;
 use std::net::IpAddr;
 use std::path::Path;
+use std::str;
 
 const ROOT_DIR: &str = "./static/packets";
 
@@ -37,7 +38,10 @@ fn handle_tcp_packet(source: IpAddr, destination: IpAddr, packet: &[u8]) {
         if find_subsequence(tcp.payload(), "ooo".as_bytes()).is_some() {
             println!("Exploited by {:?}", destination);
         }
-        writeln!(file, "{:?}", tcp.payload());
+
+        let payload = str::from_utf8(tcp.payload()).unwrap();
+
+        writeln!(file, "{:?}", payload);
     } else {
         println!("[]: Malformed TCP Packet");
     }
