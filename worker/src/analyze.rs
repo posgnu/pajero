@@ -12,6 +12,8 @@ use std::net::IpAddr;
 use std::path::Path;
 use std::str;
 
+use conf::Config;
+
 const ROOT_DIR: &str = "./static/packets";
 
 fn find_subsequence<T>(haystack: &[T], needle: &[T]) -> Option<usize>
@@ -23,13 +25,14 @@ where
         .position(|window| window == needle)
 }
 
-fn handle_tcp_packet(source: IpAddr, destination: IpAddr, packet: &[u8]) {
+fn handle_tcp_packet(source: IpAddr, destination: IpAddr, packet: &[u8],  file_name: String, round: u8) {
     let tcp = TcpPacket::new(packet);
     if let Some(tcp) = tcp {
         let des_port = tcp.get_destination();
         let sou_port = tcp.get_source();
-        let path = Path::new(ROOT_DIR);
-        
+        let path = Path::new(ROOT_DIR).join(file_name);
+        let team_name = Config::
+        // Open file "team/service/round/[packets]""
         let mut file = OpenOptions::new()
             .append(true)
             .create(true)
@@ -51,47 +54,47 @@ fn handle_transport_protocol(
     source: IpAddr,
     destination: IpAddr,
     protocol: IpNextHeaderProtocol,
-    packet: &[u8],
+    packet: &[u8], file_name: String, round: u8
 ) {
     match protocol {
-        IpNextHeaderProtocols::Tcp => handle_tcp_packet(source, destination, packet),
+        IpNextHeaderProtocols::Tcp => handle_tcp_packet(source, destination, packet, file_name, round),
         _ => {}
     }
 }
 
-fn handle_ipv4_packet(ethernet: &EthernetPacket) {
+fn handle_ipv4_packet(ethernet: &EthernetPacket, file_name: String, round: u8) {
     let header = Ipv4Packet::new(ethernet.payload());
     if let Some(header) = header {
         handle_transport_protocol(
             IpAddr::V4(header.get_source()),
             IpAddr::V4(header.get_destination()),
             header.get_next_level_protocol(),
-            header.payload(),
+            header.payload(), file_name, round
         );
     } else {
         println!("[]: Malformed IPv4 Packet");
     }
 }
 
-fn handle_ethernet_frame(ethernet: &EthernetPacket) {
+fn handle_ethernet_frame(ethernet: &EthernetPacket, file_name: String, round: u8) {
     match ethernet.get_ethertype() {
-        EtherTypes::Ipv4 => handle_ipv4_packet(ethernet),
+        EtherTypes::Ipv4 => handle_ipv4_packet(ethernet, file_name, round),
         _ => {}
     }
 }
 
-pub fn analyze(tmp_path: String) {
+pub fn analyze(tmp_path: String, round: u8) {
     // Read splitted packet files from the tmp directory
     let paths = fs::read_dir(tmp_path).unwrap();
 
     // Loop all the splitted packet files
     for path in paths {
         let file_path = path.unwrap().path();
-        println!("Name: {}", file_path.display());
+        let file_name = file_path.file_stem().unwrap().to_str().unwrap();
         
         
         // Create a channel to receive on
-        let (_, mut rx) = match pcap::from_file(file_path, Default::default()) {
+        let (_, mut rx) = match pcap::from_file(file_path.clone(), Default::default()) {
             Ok(Ethernet(tx, rx)) => (tx, rx),
             Ok(_) => panic!("packetdump: unhandled channel type: {}"),
             Err(e) => panic!("packetdump: unable to create channel: {}", e),
@@ -99,7 +102,7 @@ pub fn analyze(tmp_path: String) {
 
         loop {
             match rx.next() {
-                Ok(packet) => handle_ethernet_frame(&EthernetPacket::new(packet).unwrap()),
+                Ok(packet) => handle_ethernet_frame(&EthernetPacket::new(packet).unwrap(), file_name.to_string(), round),
                 Err(_e) => {
                     println!("Complete to read pcap");
                     break;

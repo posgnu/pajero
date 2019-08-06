@@ -27,7 +27,7 @@ pub fn split_pcap(path: String) -> Result<(), io::Error> {
         .expect("failed to execute process");
 
     // Analyze each connection and store it separately
-    analyze(tmp_dir_path.to_string());
+    analyze(tmp_dir_path.to_string(), 1);
 
     // By closing the `TempDir` explicitly, we can check that it has
     // been deleted successfully. If we don't close it explicitly,
