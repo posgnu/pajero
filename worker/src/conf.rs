@@ -120,6 +120,19 @@ impl Config {
         Err("Not found")
     }
 
+    pub fn service_port_to_name(port: u32) -> std::result::Result<String, &'static str> {
+        let list = match Self::get_services() {
+            Ok(list) => list,
+            Err(_) => return Err("JSON parsing error"),
+        };
+        for service in list.iter() {
+            if port == (&service).port {
+                return Ok(service.name.clone());
+            }
+        }
+        Err("Not found")
+    }
+
     pub fn add_team(name: String, ip: String) -> std::result::Result<(), &'static str> {
         let new_team: Team = Team {
             name: name.clone(),
@@ -346,6 +359,12 @@ mod tests {
     fn test_service_name_to_port() {
         assert_eq!(Config::service_name_to_port("bof".to_string()), Ok(8888));
         assert_eq!(Config::service_name_to_port("uaf".to_string()), Ok(7777));
+    }
+
+    #[test]
+    fn test_service_port_to_name() {
+        assert_eq!(Config::service_port_to_name(8888), Ok("bof".to_string()));
+        assert_eq!(Config::service_port_to_name(7777), Ok("uaf".to_string()));
     }
 
     #[test]

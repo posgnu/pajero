@@ -12,7 +12,7 @@ use std::net::IpAddr;
 use std::path::Path;
 use std::str;
 
-use conf::Config;
+use crate::conf::Config;
 
 const ROOT_DIR: &str = "./static/packets";
 
@@ -25,13 +25,19 @@ where
         .position(|window| window == needle)
 }
 
-fn handle_tcp_packet(source: IpAddr, destination: IpAddr, packet: &[u8],  file_name: String, round: u8) {
+fn handle_tcp_packet(
+    source: IpAddr,
+    destination: IpAddr,
+    packet: &[u8],
+    file_name: String,
+    round: u8,
+) {
     let tcp = TcpPacket::new(packet);
     if let Some(tcp) = tcp {
         let des_port = tcp.get_destination();
         let sou_port = tcp.get_source();
         let path = Path::new(ROOT_DIR).join(file_name);
-        let team_name = Config::
+
         // Open file "team/service/round/[packets]""
         let mut file = OpenOptions::new()
             .append(true)
@@ -54,10 +60,14 @@ fn handle_transport_protocol(
     source: IpAddr,
     destination: IpAddr,
     protocol: IpNextHeaderProtocol,
-    packet: &[u8], file_name: String, round: u8
+    packet: &[u8],
+    file_name: String,
+    round: u8,
 ) {
     match protocol {
-        IpNextHeaderProtocols::Tcp => handle_tcp_packet(source, destination, packet, file_name, round),
+        IpNextHeaderProtocols::Tcp => {
+            handle_tcp_packet(source, destination, packet, file_name, round)
+        }
         _ => {}
     }
 }
@@ -69,7 +79,9 @@ fn handle_ipv4_packet(ethernet: &EthernetPacket, file_name: String, round: u8) {
             IpAddr::V4(header.get_source()),
             IpAddr::V4(header.get_destination()),
             header.get_next_level_protocol(),
-            header.payload(), file_name, round
+            header.payload(),
+            file_name,
+            round,
         );
     } else {
         println!("[]: Malformed IPv4 Packet");
@@ -91,8 +103,7 @@ pub fn analyze(tmp_path: String, round: u8) {
     for path in paths {
         let file_path = path.unwrap().path();
         let file_name = file_path.file_stem().unwrap().to_str().unwrap();
-        
-        
+
         // Create a channel to receive on
         let (_, mut rx) = match pcap::from_file(file_path.clone(), Default::default()) {
             Ok(Ethernet(tx, rx)) => (tx, rx),
@@ -102,7 +113,11 @@ pub fn analyze(tmp_path: String, round: u8) {
 
         loop {
             match rx.next() {
-                Ok(packet) => handle_ethernet_frame(&EthernetPacket::new(packet).unwrap(), file_name.to_string(), round),
+                Ok(packet) => handle_ethernet_frame(
+                    &EthernetPacket::new(packet).unwrap(),
+                    file_name.to_string(),
+                    round,
+                ),
                 Err(_e) => {
                     println!("Complete to read pcap");
                     break;
