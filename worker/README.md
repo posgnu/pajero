@@ -20,22 +20,16 @@ This will produce an executable in the `./target/release` directory.
 ## How to use
 
 ```
-$./pajero set
+$./cargo run serve
 ```
 
-Set the information about teams which are participating the CTF
+serve APIs for the client
 
 ```
-$./pajero analyze
+$./cargo run analyze [packet path] [round]
 ```
 
 Analyze packet as pre-defined filter
-
-```
-$./pajero play
-```
-
-Replay packet to another team's service
 
 ## Testing
 
