@@ -6,7 +6,7 @@ use pnet::packet::ipv4::Ipv4Packet;
 use pnet::packet::tcp::TcpPacket;
 use pnet::packet::Packet;
 
-use std::fs::{self, read_dir, OpenOptions};
+use std::fs::{self, create_dir_all, read_dir, OpenOptions};
 use std::io::prelude::*;
 use std::net::IpAddr;
 use std::path::Path;
@@ -36,21 +36,83 @@ fn handle_tcp_packet(
     if let Some(tcp) = tcp {
         let des_port = tcp.get_destination();
         let sou_port = tcp.get_source();
-        let path = Path::new(ROOT_DIR).join(file_name);
 
-        // Open file "team/service/round/[packets]""
-        let mut file = OpenOptions::new()
-            .append(true)
-            .create(true)
-            .open(path)
-            .unwrap();
-        if find_subsequence(tcp.payload(), "ooo".as_bytes()).is_some() {
-            println!("Exploited by {:?}", destination);
+        let source_name = match Config::team_ip_to_name(source.to_string()) {
+            Ok(name) => name,
+            Err(_) => "local".to_string(),
+        };
+
+        let destination_name = match Config::team_ip_to_name(destination.to_string()) {
+            Ok(name) => name,
+            Err(_) => "local".to_string(),
+        };
+
+        let service_name = match Config::service_port_to_name(des_port.into()) {
+            Ok(port) => port,
+            Err(_) => match Config::service_port_to_name(sou_port.into()) {
+                Ok(port) => port,
+                Err(_) => "unknown".to_string(),
+            },
+        };
+
+        let dir_team_name = if source_name != "local" {
+            source_name.clone()
+        } else {
+            if destination_name == "local" {
+                "unknow".to_string()
+            } else {
+                destination_name.clone()
+            }
+        };
+
+        let path = Path::new(ROOT_DIR)
+            .join(dir_team_name.clone())
+            .join(service_name.clone())
+            .join("Round ".to_owned() + &round.to_string())
+            .join(file_name);
+
+        create_dir_all(
+            Path::new(ROOT_DIR)
+                .join(dir_team_name)
+                .join(service_name.clone())
+                .join("Round ".to_owned() + &round.to_string()),
+        );
+
+        let flag = match Config::service_name_to_flag(service_name) {
+            Ok(flag) => flag,
+            // Default flag
+            Err(_) => "DEFCON{".to_string(),
+        };
+
+        let mut file;
+        // Contain flag
+        if find_subsequence(tcp.payload(), flag.as_bytes()).is_some() {
+            file = OpenOptions::new()
+                .append(true)
+                .create(true)
+                .open(path)
+                .unwrap();
+        } else {
+            // Open file "team/service/round/[packets]""
+            file = OpenOptions::new()
+                .append(true)
+                .create(true)
+                .open(path)
+                .unwrap();
         }
 
-        let payload = str::from_utf8(tcp.payload()).unwrap();
-
-        writeln!(file, "{:?}", payload);
+        match str::from_utf8(tcp.payload()) {
+            Ok(pay) => {
+                writeln!(file, "{} -> {}", source_name, destination_name);
+                writeln!(file, "{:?}", pay);
+                writeln!(file, "");
+            }
+            Err(err) => {
+                writeln!(file, "{} -> {}", source_name, destination_name);
+                writeln!(file, "{:?}", tcp.payload());
+                writeln!(file, "");
+            }
+        };
     } else {
         println!("[]: Malformed TCP Packet");
     }
@@ -102,7 +164,7 @@ pub fn analyze(tmp_path: String, round: u8) {
     // Loop all the splitted packet files
     for path in paths {
         let file_path = path.unwrap().path();
-        let file_name = file_path.file_stem().unwrap().to_str().unwrap();
+        let file_name = file_path.file_stem().unwrap().to_str().unwrap().to_owned() + ".txt";
 
         // Create a channel to receive on
         let (_, mut rx) = match pcap::from_file(file_path.clone(), Default::default()) {

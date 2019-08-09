@@ -55,7 +55,7 @@ rustup component add rustfmt --toolchain nightly-2019-05-17
 To run `rustfmt`
 
 ```
-cargo +nightly-2019-05-17 fmt
+    cargo +nightly-2019-05-17 fmt
 ```
 
 ## License

@@ -45,6 +45,11 @@ fn main() {
                     Arg::with_name("*.pcap")
                         .help("Path where the pcap file is located")
                         .required(true),
+                )
+                .arg(
+                    Arg::with_name("round")
+                        .help("Round of packets")
+                        .required(true),
                 ),
         )
         .subcommand(
@@ -59,7 +64,8 @@ fn main() {
         ("play", Some(_sub_input)) => {}
         ("analyze", Some(sub_input)) => {
             let path: String = sub_input.value_of("*.pcap").unwrap().to_string();
-            split_pcap(path);
+            let round: u8 = sub_input.value_of("round").unwrap().parse::<u8>().unwrap();
+            split_pcap(path, round);
         }
         ("serve", Some(_sub_input)) => serve(),
         _ => println!("Awesome packet replayer, 1.0, GNu. <posgnu@gmail.com>"),
