@@ -4,15 +4,35 @@ Packets replayer for attack &amp; defence CTF
 
 ## Build
 
-```
-git clone git@github.com:GNUp/pajero.git
-cd pajero
+First, Install [rustup](https://rustup.rs/) and clone repository.
+
+```shell
+$ git clone git@github.com:GNUp/pajero.git
+$ cd pajero
 ```
 
-Build in release mode
+Install libpcap
 
+```shell
+$ sudo apt-get install libpcap-dev
 ```
-cargo build --release
+
+Give +x permission to PcapSplitter binary
+
+```shell
+$ chmod +x pajero/worker/static/bin/PcapSplitter
+```
+
+Use a nightly version of Rust
+
+```shell
+$ rustup override set nightly
+```
+
+~~Build in release mode~~
+
+```shell
+$ cargo build --release
 ```
 
 This will produce an executable in the `./target/release` directory.
