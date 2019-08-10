@@ -37,6 +37,19 @@ $ cargo build --release
 
 This will produce an executable in the `./target/release` directory.
 
+## Setup
+
+Before all, you should fill `./static/conf.json`. Below is a template for it.
+
+```json
+"team" : [
+  { "name" : "PLUS", "ip" : "0.0.0.0" } , ...
+],
+"service" : [
+  {"name" : "bof", "flag" : "DEFCON{"}, "port": 8888 }, ..
+]
+```
+
 ## How to use
 
 ```
