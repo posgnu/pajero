@@ -49,7 +49,7 @@ serve APIs for the client
 $./cargo run analyze [packet path] [round]
 ```
 
-Analyze packet as pre-defined filter
+Analyze packet with pre-defined filter and then we can see the results in the`./static/packets/` directory.
 
 ## Testing
 
