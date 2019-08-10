@@ -6,10 +6,10 @@ use pnet::packet::ipv4::Ipv4Packet;
 use pnet::packet::tcp::TcpPacket;
 use pnet::packet::Packet;
 
-use std::fs::{self, create_dir_all, read_dir, OpenOptions};
+use std::fs::{self, create_dir_all, read_dir, rename, OpenOptions};
 use std::io::prelude::*;
 use std::net::IpAddr;
-use std::path::Path;
+use std::path::{Path, PathBuf};
 use std::str;
 
 use crate::conf::Config;
@@ -31,7 +31,7 @@ fn handle_tcp_packet(
     packet: &[u8],
     file_name: String,
     round: u8,
-) {
+) -> Option<PathBuf> {
     let tcp = TcpPacket::new(packet);
     if let Some(tcp) = tcp {
         let des_port = tcp.get_destination();
@@ -84,22 +84,12 @@ fn handle_tcp_packet(
             Err(_) => "DEFCON{".to_string(),
         };
 
-        let mut file;
-        // Contain flag
-        if find_subsequence(tcp.payload(), flag.as_bytes()).is_some() {
-            file = OpenOptions::new()
-                .append(true)
-                .create(true)
-                .open(path)
-                .unwrap();
-        } else {
-            // Open file "team/service/round/[packets]""
-            file = OpenOptions::new()
-                .append(true)
-                .create(true)
-                .open(path)
-                .unwrap();
-        }
+        // Open file "team/service/round/[packets]""
+        let mut file = OpenOptions::new()
+            .append(true)
+            .create(true)
+            .open(path.clone())
+            .unwrap();
 
         match str::from_utf8(tcp.payload()) {
             Ok(pay) => {
@@ -113,8 +103,16 @@ fn handle_tcp_packet(
                 writeln!(file, "");
             }
         };
+
+        // Check if this connection contains flag
+        if find_subsequence(tcp.payload(), flag.as_bytes()).is_some() {
+            Some(path)
+        } else {
+            None
+        }
     } else {
         println!("[]: Malformed TCP Packet");
+        None
     }
 }
 
@@ -125,16 +123,16 @@ fn handle_transport_protocol(
     packet: &[u8],
     file_name: String,
     round: u8,
-) {
+) -> Option<PathBuf> {
     match protocol {
         IpNextHeaderProtocols::Tcp => {
             handle_tcp_packet(source, destination, packet, file_name, round)
         }
-        _ => {}
+        _ => {None}
     }
 }
 
-fn handle_ipv4_packet(ethernet: &EthernetPacket, file_name: String, round: u8) {
+fn handle_ipv4_packet(ethernet: &EthernetPacket, file_name: String, round: u8) -> Option<PathBuf> {
     let header = Ipv4Packet::new(ethernet.payload());
     if let Some(header) = header {
         handle_transport_protocol(
@@ -144,20 +142,23 @@ fn handle_ipv4_packet(ethernet: &EthernetPacket, file_name: String, round: u8) {
             header.payload(),
             file_name,
             round,
-        );
+        )
     } else {
         println!("[]: Malformed IPv4 Packet");
+        None
     }
 }
 
-fn handle_ethernet_frame(ethernet: &EthernetPacket, file_name: String, round: u8) {
+fn handle_ethernet_frame(ethernet: &EthernetPacket, file_name: String, round: u8) -> Option<PathBuf> {
     match ethernet.get_ethertype() {
         EtherTypes::Ipv4 => handle_ipv4_packet(ethernet, file_name, round),
-        _ => {}
+        _ => {
+            None
+        }
     }
 }
 
-pub fn analyze(tmp_path: String, round: u8) {
+pub fn analyze(tmp_path: String, round: u8) -> Result<(), &'static str> {
     // Read splitted packet files from the tmp directory
     let paths = fs::read_dir(tmp_path).unwrap();
 
@@ -173,18 +174,39 @@ pub fn analyze(tmp_path: String, round: u8) {
             Err(e) => panic!("packetdump: unable to create channel: {}", e),
         };
 
+        let mut flag_connection: Option<PathBuf> = None;
         loop {
             match rx.next() {
-                Ok(packet) => handle_ethernet_frame(
-                    &EthernetPacket::new(packet).unwrap(),
-                    file_name.to_string(),
-                    round,
-                ),
+                Ok(packet) => {
+                    match handle_ethernet_frame(
+                        &EthernetPacket::new(packet).unwrap(),
+                        file_name.to_string(),
+                        round,
+                    ) {
+                        Some(path) => {
+                            if flag_connection == None {
+                                flag_connection = Some(path);
+                            }
+                        }
+                        None => {}
+                    }
+                }
                 Err(_e) => {
-                    println!("Complete to read pcap");
+                    // Complete to read pcap
                     break;
                 }
             }
         }
+
+        // Move flag connection to the flag directory
+        if let Some(connection) = flag_connection {
+            let flag_dir = connection.parent().unwrap().join("flag");
+
+            create_dir_all(flag_dir.clone());
+
+            rename(connection.clone(), flag_dir.join(connection.file_name().unwrap()));
+        }
     }
+
+    Ok(())
 }
