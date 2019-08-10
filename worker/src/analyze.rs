@@ -91,18 +91,14 @@ fn handle_tcp_packet(
             .open(path.clone())
             .unwrap();
 
-        match str::from_utf8(tcp.payload()) {
-            Ok(pay) => {
-                writeln!(file, "{} -> {}", source_name, destination_name);
-                writeln!(file, "{:?}", pay);
-                writeln!(file, "");
-            }
-            Err(err) => {
-                writeln!(file, "{} -> {}", source_name, destination_name);
-                writeln!(file, "{:?}", tcp.payload());
-                writeln!(file, "");
-            }
-        };
+        let string_payload = String::from_utf8_lossy(tcp.payload());
+        let bytes_payload = tcp.payload();
+
+        writeln!(file, "{} -> {}", source_name, destination_name);
+        writeln!(file, "string format: {:?}", string_payload);
+        writeln!(file, "bytes format: {:?}", bytes_payload);
+        writeln!(file, "");
+
 
         // Check if this connection contains flag
         if find_subsequence(tcp.payload(), flag.as_bytes()).is_some() {
