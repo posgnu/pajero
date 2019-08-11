@@ -4,6 +4,7 @@ use pnet::packet::ethernet::{EtherTypes, EthernetPacket};
 use pnet::packet::ip::{IpNextHeaderProtocol, IpNextHeaderProtocols};
 use pnet::packet::ipv4::Ipv4Packet;
 use pnet::packet::tcp::TcpPacket;
+use pnet::packet::vlan::VlanPacket;
 use pnet::packet::Packet;
 
 use std::fs::{self, create_dir_all, read_dir, rename, OpenOptions};
@@ -99,7 +100,6 @@ fn handle_tcp_packet(
         writeln!(file, "bytes format: {:?}", bytes_payload);
         writeln!(file, "");
 
-
         // Check if this connection contains flag
         if find_subsequence(tcp.payload(), flag.as_bytes()).is_some() {
             Some(path)
@@ -124,7 +124,10 @@ fn handle_transport_protocol(
         IpNextHeaderProtocols::Tcp => {
             handle_tcp_packet(source, destination, packet, file_name, round)
         }
-        _ => {None}
+        _ => {
+            println!("Something wrong2");
+            None
+        }
     }
 }
 
@@ -145,12 +148,39 @@ fn handle_ipv4_packet(ethernet: &EthernetPacket, file_name: String, round: u8) -
     }
 }
 
-fn handle_ethernet_frame(ethernet: &EthernetPacket, file_name: String, round: u8) -> Option<PathBuf> {
+fn handle_vlan_packet(ethernet: &VlanPacket, file_name: String, round: u8) -> Option<PathBuf> {
+    let header = Ipv4Packet::new(ethernet.payload());
+    if let Some(header) = header {
+        handle_transport_protocol(
+            IpAddr::V4(header.get_source()),
+            IpAddr::V4(header.get_destination()),
+            header.get_next_level_protocol(),
+            header.payload(),
+            file_name,
+            round,
+        )
+    } else {
+        println!("[]: Malformed IPv4 Packet");
+        None
+    }
+}
+
+fn handle_ethernet_frame(
+    ethernet: &EthernetPacket,
+    file_name: String,
+    round: u8,
+) -> Option<PathBuf> {
     match ethernet.get_ethertype() {
         EtherTypes::Ipv4 => handle_ipv4_packet(ethernet, file_name, round),
-        _ => {
-            None
+        EtherTypes::Vlan => {
+            if let Some(vlan) = VlanPacket::new(ethernet.payload()) {
+                handle_vlan_packet(&vlan, file_name, round)
+            } else {
+                println!("Something wrong4");
+                None
+            }
         }
+        _ => None,
     }
 }
 
@@ -200,7 +230,10 @@ pub fn analyze(tmp_path: String, round: u8) -> Result<(), &'static str> {
 
             create_dir_all(flag_dir.clone());
 
-            rename(connection.clone(), flag_dir.join(connection.file_name().unwrap()));
+            rename(
+                connection.clone(),
+                flag_dir.join(connection.file_name().unwrap()),
+            );
         }
     }
 
