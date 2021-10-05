@@ -4,7 +4,7 @@ Packets replayer for attack &amp; defence CTF
 
 ## Build
 
-First, Install [rustup](https://rustup.rs/) and clone repository.
+Install rust via [rustup](https://rustup.rs/) and clone the repository.
 
 ```shell
 $ git clone git@github.com:GNUp/pajero.git
@@ -17,19 +17,7 @@ Install libpcap
 $ sudo apt-get install libpcap-dev
 ```
 
-Give +x permission to PcapSplitter binary
-
-```shell
-$ chmod +x pajero/worker/static/bin/PcapSplitter
-```
-
-Use a nightly version of Rust
-
-```shell
-$ rustup override set nightly
-```
-
-~~Build in release mode~~
+Build in release mode
 
 ```shell
 $ cargo build --release
@@ -43,10 +31,10 @@ Before all, you should fill `./static/conf.json`. Below is a template for it.
 
 ```json
 "team" : [
-  { "name" : "PLUS", "ip" : "0.0.0.0" } , ...
+  { "name" : "PLUS", "ip" : "0.0.0.0" } , 
 ],
 "service" : [
-  {"name" : "bof", "flag" : "DEFCON{"}, "port": 8888 }, ..
+  {"name" : "bof", "flag" : "DEFCON{", "port": 8888 }, 
 ]
 ```
 

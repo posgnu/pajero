@@ -22,14 +22,10 @@ fn main() {
         .subcommand(
             SubCommand::with_name("play")
                 .about("Replay packet")
-                .version("1.0")
-                .author("GNu. <posgnu@gmail.com>"),
         )
         .subcommand(
             SubCommand::with_name("analyze")
                 .about("Analyze packet")
-                .version("1.0")
-                .author("GNu. <posgnu@gmail.com>")
                 .arg(
                     Arg::with_name("*.pcap")
                         .help("Path where the pcap file is located")
@@ -40,12 +36,6 @@ fn main() {
                         .help("Round of packets")
                         .required(true),
                 ),
-        )
-        .subcommand(
-            SubCommand::with_name("serve")
-                .about("Run API provider")
-                .version("1.0")
-                .author("GNu. <posgnu@gmail.com>"),
         )
         .get_matches();
 
