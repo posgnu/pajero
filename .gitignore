@@ -2,3 +2,4 @@
 /static/packets
 /static/conf.json
 **/*.rs.bk
+.DS_Store
