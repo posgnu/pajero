@@ -1,4 +1,3 @@
-#![feature(proc_macro_hygiene, decl_macro)]
 
 extern crate clap;
 #[macro_use]
@@ -6,23 +5,14 @@ extern crate serde_derive;
 extern crate pnet;
 extern crate serde;
 extern crate serde_json;
-#[macro_use]
-extern crate rocket;
 
 use clap::{App, Arg, SubCommand};
 use conf::Config;
-use serve::serve;
 use splitter::split_pcap;
 
 mod analyze;
 mod conf;
-mod serve;
 mod splitter;
-
-#[get("/")]
-fn index() -> &'static str {
-    "Hello, world!"
-}
 
 fn main() {
     let matches = App::new("pajero")
@@ -66,7 +56,6 @@ fn main() {
             let round: u8 = sub_input.value_of("round").unwrap().parse::<u8>().unwrap();
             split_pcap(path, round);
         }
-        ("serve", Some(_sub_input)) => serve(),
         _ => println!("Awesome packet replayer, 1.0, GNu. <posgnu@gmail.com>"),
     }
     return;
