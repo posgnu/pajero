@@ -15,9 +15,8 @@ pub fn split_pcap(path: String, round: u8) -> Result<(), io::Error> {
         Some(s) => {
             // println!("Make tmp dir on {}", s);
             s
-        },
+        }
     };
-
 
     // Execute PcapSplitter
     let output = Command::new(DEFAULT_BIN_PATH)

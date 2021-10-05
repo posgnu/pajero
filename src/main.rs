@@ -1,4 +1,3 @@
-
 extern crate clap;
 #[macro_use]
 extern crate serde_derive;
@@ -19,10 +18,7 @@ fn main() {
         .version("1.0")
         .author("GNu. <posgnu@gmail.com>")
         .about("Awesome packet replayer")
-        .subcommand(
-            SubCommand::with_name("replay")
-                .about("Replay packet")
-        )
+        .subcommand(SubCommand::with_name("replay").about("Replay packet"))
         .subcommand(
             SubCommand::with_name("analyze")
                 .about("Analyze packet")
