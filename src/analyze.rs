@@ -125,7 +125,7 @@ fn handle_transport_protocol(
             handle_tcp_packet(source, destination, packet, file_name, round)
         }
         _ => {
-            println!("Something wrong2");
+            println!("Received another type of packet other than TCP");
             None
         }
     }

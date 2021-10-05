@@ -1,6 +1,6 @@
 # pajero
 
-Packets replayer for attack &amp; defence CTF
+Packets analyzer for attack &amp; defence CTF
 
 ## Build
 
