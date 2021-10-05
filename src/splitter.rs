@@ -12,8 +12,12 @@ pub fn split_pcap(path: String, round: u8) -> Result<(), io::Error> {
     let output_dir = TempDir::new("connections")?;
     let tmp_dir_path = match output_dir.path().to_str() {
         None => panic!("path is not a valid UTF-8 sequence"),
-        Some(s) => s,
+        Some(s) => {
+            // println!("Make tmp dir on {}", s);
+            s
+        },
     };
+
 
     // Execute PcapSplitter
     let output = Command::new(DEFAULT_BIN_PATH)

@@ -20,7 +20,7 @@ fn main() {
         .author("GNu. <posgnu@gmail.com>")
         .about("Awesome packet replayer")
         .subcommand(
-            SubCommand::with_name("play")
+            SubCommand::with_name("replay")
                 .about("Replay packet")
         )
         .subcommand(
@@ -40,10 +40,13 @@ fn main() {
         .get_matches();
 
     match matches.subcommand() {
-        ("play", Some(_sub_input)) => {}
+        ("replay", Some(_sub_input)) => {
+            println!("Not Implemented");
+        }
         ("analyze", Some(sub_input)) => {
             let path: String = sub_input.value_of("*.pcap").unwrap().to_string();
             let round: u8 = sub_input.value_of("round").unwrap().parse::<u8>().unwrap();
+
             split_pcap(path, round);
         }
         _ => println!("Awesome packet replayer, 1.0, GNu. <posgnu@gmail.com>"),
