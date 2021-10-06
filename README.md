@@ -31,10 +31,6 @@ $./pajero run analyze [packet path] [round]
 
 Analyze packet with pre-defined filter (conf.json) and then we can see the results in the`./static/packets/` directory. Attack payload will be collected in `./static/packets/flag/`.
 
-## Contribution
-
-If you want to make some contributions to this project, here some basic instructions for you.
-
 ### Design
 
 ![model](https://github.com/GNUp/pajero/blob/master/model.png)
@@ -42,6 +38,10 @@ If you want to make some contributions to this project, here some basic instruct
 ### Target network
 
 ![network](https://github.com/GNUp/pajero/blob/master/network.png)
+
+## Contribution
+
+If you want to make some contributions to this project, here some basic instructions for you.
 
 ### Building
 
